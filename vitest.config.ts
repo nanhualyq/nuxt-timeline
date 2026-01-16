@@ -10,6 +10,7 @@ export default defineConfig({
           name: 'unit',
           include: ['test/unit/*.{test,spec}.ts'],
           environment: 'node',
+          setupFiles: ['test/vitest.db.setup.ts'],
         },
       },
       await defineVitestProject({
