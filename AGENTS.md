@@ -24,6 +24,12 @@ This guide provides essential information for agentic coding agents working in t
 - **Nuxt test**: `pnpm vitest run --project nuxt test/nuxt/filename.test.ts`
 - **E2E test**: `pnpm playwright test tests/filename.spec.ts`
 
+### Database Commands
+- **Generate migrations**: `pnpm db:generate` - Create migration files from schema changes
+- **Run migrations**: `pnpm db:migrate` - Apply pending migrations to database
+- **Push schema**: `pnpm db:push` - Push schema directly to database (for development)
+- **Database studio**: `pnpm db:studio` - Open Drizzle Studio for database management
+
 ### Code Quality
 - **Lint**: ESLint is configured via @nuxt/eslint. Run through Nuxt dev tools or setup specific script if needed
 - **Type check**: Use `npx nuxi typecheck` or your IDE's TypeScript integration
@@ -36,6 +42,7 @@ This guide provides essential information for agentic coding agents working in t
 ├── pages/              # File-based routing
 ├── composables/        # Vue composables
 ├── server/             # Server routes/middleware
+│   └── db/             # Database configuration and schema
 ├── test/
 │   ├── unit/           # Unit tests (Node environment)
 │   └── nuxt/           # Nuxt integration tests (happy-dom)
@@ -101,6 +108,13 @@ import TimelineItem from '~/components/TimelineItem.vue'
 - Follow Nuxt file-based routing conventions
 - Use proper Nuxt 4 patterns and modules
 
+### Database Patterns
+- Use Drizzle ORM with better-sqlite3 driver
+- Define tables in server/db/schema.ts using Drizzle schema
+- Use migrations for schema changes (prefer `db:migrate` over `db:push` in production)
+- Import database instance from server/db/index.ts
+- Follow TypeScript best practices for database queries
+
 ### UI/UX
 - Leverage @nuxt/ui components and design system
 - Implement responsive design using Tailwind (included with @nuxt/ui)
@@ -110,6 +124,7 @@ import TimelineItem from '~/components/TimelineItem.vue'
 ## Dependencies & Tools
 - **Framework**: Nuxt 4.x with Vue 3
 - **UI Library**: @nuxt/ui (includes Tailwind CSS)
+- **Database**: Drizzle ORM with SQLite (better-sqlite3)
 - **Testing**: Vitest (unit/integration) + Playwright (E2E)
 - **Linting**: ESLint with @nuxt/eslint configuration
 - **Image Optimization**: @nuxt/image

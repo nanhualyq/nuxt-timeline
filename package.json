@@ -14,7 +14,11 @@
     "test:unit": "vitest --project unit",
     "test:nuxt": "vitest --project nuxt",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@nuxt/eslint": "1.12.1",
@@ -22,6 +26,8 @@
     "@nuxt/image": "2.0.0",
     "@nuxt/test-utils": "3.23.0",
     "@nuxt/ui": "4.3.0",
+    "better-sqlite3": "^12.6.0",
+    "drizzle-orm": "^0.45.1",
     "eslint": "^9.39.2",
     "nuxt": "^4.2.2",
     "typescript": "^5.9.3",
@@ -30,10 +36,13 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",
+    "drizzle-kit": "^0.31.8",
     "happy-dom": "^20.3.1",
     "playwright-core": "^1.57.0",
+    "tsx": "^4.21.0",
     "vitest": "^4.0.17"
   }
 }
