@@ -1,27 +1,26 @@
-import { db } from '../../db'
-import { subscribe } from '../../db/schema'
+import { db } from "../../db";
+import { insertSubscribeSchema, subscribe } from "../../db/schema";
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { name, link, downloadCode, contentCode } = body
+  const body = await readBody(event);
+  const result = insertSubscribeSchema.safeParse(body);
 
-  if (!name || !link || !downloadCode || !contentCode) {
-    throw createError({ statusCode: 400, statusMessage: 'All fields are required' })
+  if (!result.success) {
+    const firstError = result.error.issues[0];
+    throw createError({
+      statusCode: 400,
+      statusMessage: firstError?.message || "Validation failed",
+    });
   }
 
-  const id = crypto.randomUUID()
-  const createdAt = new Date().toISOString()
-  const updatedAt = createdAt
+  const createdAt = new Date().toISOString();
+  const updatedAt = createdAt;
 
   await db.insert(subscribe).values({
-    id,
-    name,
-    link,
-    downloadCode,
-    contentCode,
+    ...result.data,
     createdAt,
-    updatedAt
-  })
+    updatedAt,
+  });
 
-  return { id }
-})
+  return { success: true };
+});

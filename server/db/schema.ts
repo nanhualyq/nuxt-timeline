@@ -1,7 +1,8 @@
-import { sqliteTable, text } from "drizzle-orm/sqlite-core"
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core"
+import { createInsertSchema, createSelectSchema } from "drizzle-zod"
 
 export const subscribe = sqliteTable("subscribe", {
-  id: text("id").primaryKey(),
+  id: integer("id").primaryKey({ autoIncrement: true }),
   name: text("name").notNull(),
   link: text("link").notNull(),
   downloadCode: text("download_code").notNull(),
@@ -9,3 +10,11 @@ export const subscribe = sqliteTable("subscribe", {
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 })
+
+export const insertSubscribeSchema = createInsertSchema(subscribe).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+})
+
+export const selectSubscribeSchema = createSelectSchema(subscribe)

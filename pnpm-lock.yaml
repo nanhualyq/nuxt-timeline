@@ -22,13 +22,16 @@ importers:
         version: 3.23.0(@playwright/test@1.57.0)(@vue/test-utils@2.4.6)(happy-dom@20.3.1)(magicast@0.5.1)(playwright-core@1.57.0)(typescript@5.9.3)(vitest@4.0.17(@types/node@20.19.30)(happy-dom@20.3.1)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
       '@nuxt/ui':
         specifier: 4.3.0
-        version: 4.3.0(f0fdc04e3218cb5acaeaf8fbfd3f6375)
+        version: 4.3.0(64b38152d9344b947579bc0bdda7a39e)
       better-sqlite3:
         specifier: ^12.6.0
         version: 12.6.0
       drizzle-orm:
         specifier: ^0.45.1
         version: 0.45.1(@types/better-sqlite3@7.6.13)(better-sqlite3@12.6.0)
+      drizzle-zod:
+        specifier: ^0.8.3
+        version: 0.8.3(drizzle-orm@0.45.1(@types/better-sqlite3@7.6.13)(better-sqlite3@12.6.0))(zod@4.3.5)
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
@@ -47,6 +50,9 @@ importers:
       vue-router:
         specifier: ^4.6.4
         version: 4.6.4(vue@3.5.26(typescript@5.9.3))
+      zod:
+        specifier: ^4.3.5
+        version: 4.3.5
     devDependencies:
       '@playwright/test':
         specifier: ^1.57.0
@@ -3291,6 +3297,12 @@ packages:
       sqlite3:
         optional: true
 
+  drizzle-zod@0.8.3:
+    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.0 || ^4.0.0
+
   duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
 
@@ -5908,6 +5920,9 @@ packages:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
 
+  zod@4.3.5:
+    resolution: {integrity: sha512-k7Nwx6vuWx1IJ9Bjuf4Zt1PEllcwe7cls3VNzm4CQ1/hgtFUK2bRNG3rvnpPUhFjmqJKAKtjV576KnUkHocg/g==}
+
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
@@ -7207,7 +7222,7 @@ snapshots:
       - magicast
       - typescript
 
-  '@nuxt/ui@4.3.0(f0fdc04e3218cb5acaeaf8fbfd3f6375)':
+  '@nuxt/ui@4.3.0(64b38152d9344b947579bc0bdda7a39e)':
     dependencies:
       '@iconify/vue': 5.0.0(vue@3.5.26(typescript@5.9.3))
       '@internationalized/date': 3.10.1
@@ -7270,6 +7285,7 @@ snapshots:
       vue-component-type-helpers: 3.2.2
     optionalDependencies:
       vue-router: 4.6.4(vue@3.5.26(typescript@5.9.3))
+      zod: 4.3.5
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -9157,6 +9173,11 @@ snapshots:
     optionalDependencies:
       '@types/better-sqlite3': 7.6.13
       better-sqlite3: 12.6.0
+
+  drizzle-zod@0.8.3(drizzle-orm@0.45.1(@types/better-sqlite3@7.6.13)(better-sqlite3@12.6.0))(zod@4.3.5):
+    dependencies:
+      drizzle-orm: 0.45.1(@types/better-sqlite3@7.6.13)(better-sqlite3@12.6.0)
+      zod: 4.3.5
 
   duplexer@0.1.2: {}
 
@@ -12214,3 +12235,5 @@ snapshots:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  zod@4.3.5: {}
