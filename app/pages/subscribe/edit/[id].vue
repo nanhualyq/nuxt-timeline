@@ -4,7 +4,7 @@
             {{ route.params.id === 'new' ? 'Create Subscription' : 'Edit Subscription' }}
         </h1>
 
-        <UAlert v-if="errors.form" color="error" :description="errors.form" class="mb-4" />
+        <UAlert v-if="submitStatus === 'error'" color="error" :description="submitError?.statusMessage" class="mb-4" />
 
         <UForm :state="state" @submit="onSubmit" class="space-y-4">
             <UFormField label="Name" name="name" :error="errors.name">
@@ -41,6 +41,7 @@ import { createInsertSchema } from 'drizzle-zod'
 import { subscribe } from '~~/server/db/schema'
 
 const route = useRoute()
+const isNew = route.params.id === 'new'
 
 const schema = createInsertSchema(subscribe, {
     name: () => z.string().min(1, 'Name is required'),
@@ -54,32 +55,31 @@ const schema = createInsertSchema(subscribe, {
     contentCode: true
 })
 
+const errors = ref<Record<string, string>>({})
 type Schema = z.infer<typeof schema>
 
-const state = reactive<Schema>({
-    name: '',
-    link: '',
-    downloadCode: '',
-    contentCode: ''
+const { data: state, execute: fetchData } = await useFetch<Schema>(`/api/subscribe/${route.params.id}`, {
+    immediate: false,
+    default: () => ({
+        name: '',
+        link: '',
+        downloadCode: '',
+        contentCode: ''
+    })
 })
-
-const loading = ref(false)
-const errors = ref<Record<string, string>>({})
-
-const { data } = await useFetch(`/api/subscribe/${route.params.id}`, {
-    server: false,
-    default: () => null
-})
-
-if (route.params.id !== 'new' && data.value) {
-    state.name = data.value.name
-    state.link = data.value.link
-    state.downloadCode = data.value.downloadCode
-    state.contentCode = data.value.contentCode
+if (!isNew) {
+    fetchData()
 }
+const submitUrl = isNew ? '/api/subscribe' : `/api/subscribe/${route.params.id}`
+const { pending: loading, execute: submit, error: submitError, status: submitStatus } = await useFetch(submitUrl, {
+    server: false,
+    immediate: false,
+    method: isNew ? 'POST' : 'PUT',
+    body: state
+})
 
 const validate = () => {
-    const result = schema.safeParse(state)
+    const result = schema.safeParse(state.value)
     if (!result.success) {
         const fieldErrors: Record<string, string> = {}
         for (const issue of result.error.issues) {
@@ -98,28 +98,9 @@ const validate = () => {
 const onSubmit = async () => {
     if (!validate()) return
 
-    loading.value = true
-    try {
-        if (route.params.id === 'new') {
-            await $fetch('/api/subscribe', {
-                method: 'POST',
-                body: state
-            })
-        } else {
-            await $fetch(`/api/subscribe/${route.params.id}`, {
-                method: 'PUT',
-                body: state
-            })
-        }
+    await submit()
+    if (submitStatus.value === 'success') {
         await navigateTo('/')
-    } catch (error) {
-        console.error('Error saving subscription:', error)
-        const err = error as { data?: { message?: string }, message?: string }
-        errors.value = {
-            form: err.data?.message || err.message || 'Failed to save subscription'
-        }
-    } finally {
-        loading.value = false
     }
 }
 </script>

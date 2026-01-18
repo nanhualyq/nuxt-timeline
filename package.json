@@ -30,6 +30,7 @@
     "drizzle-orm": "^0.45.1",
     "drizzle-zod": "^0.8.3",
     "eslint": "^9.39.2",
+    "lodash-es": "^4.17.22",
     "nuxt": "^4.2.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@types/better-sqlite3": "^7.6.13",
+    "@types/lodash-es": "^4.17.12",
     "@vitest/coverage-v8": "^4.0.17",
     "@vue/test-utils": "^2.4.6",
     "drizzle-kit": "^0.31.8",
