@@ -6,20 +6,20 @@
 
         <UAlert v-if="submitStatus === 'error'" color="error" :description="submitError?.statusMessage" class="mb-4" />
 
-        <UForm :state="state" @submit="onSubmit" class="space-y-4">
-            <UFormField label="Name" name="name" :error="errors.name">
+        <UForm :schema="schema" :state="state" @submit="submit" class="space-y-4">
+            <UFormField label="Name" name="name">
                 <UInput v-model="state.name" />
             </UFormField>
 
-            <UFormField label="Link" name="link" :error="errors.link">
+            <UFormField label="Link" name="link">
                 <UInput v-model="state.link" type="url" />
             </UFormField>
 
-            <UFormField label="Download Code" name="downloadCode" :error="errors.downloadCode">
+            <UFormField label="Download Code" name="downloadCode">
                 <UTextarea v-model="state.downloadCode" />
             </UFormField>
 
-            <UFormField label="Content Code" name="contentCode" :error="errors.contentCode">
+            <UFormField label="Content Code" name="contentCode">
                 <UTextarea v-model="state.contentCode" />
             </UFormField>
 
@@ -55,7 +55,6 @@ const schema = createInsertSchema(subscribe, {
     contentCode: true
 })
 
-const errors = ref<Record<string, string>>({})
 type Schema = z.infer<typeof schema>
 
 const { data: state, execute: fetchData } = await useFetch<Schema>(`/api/subscribe/${route.params.id}`, {
@@ -77,30 +76,10 @@ const { pending: loading, execute: submit, error: submitError, status: submitSta
     method: isNew ? 'POST' : 'PUT',
     body: state
 })
-
-const validate = () => {
-    const result = schema.safeParse(state.value)
-    if (!result.success) {
-        const fieldErrors: Record<string, string> = {}
-        for (const issue of result.error.issues) {
-            const path = issue.path.join('.')
-            if (!fieldErrors[path]) {
-                fieldErrors[path] = issue.message
-            }
-        }
-        errors.value = fieldErrors
-        return false
-    }
-    errors.value = {}
-    return true
-}
-
-const onSubmit = async () => {
-    if (!validate()) return
-
-    await submit()
-    if (submitStatus.value === 'success') {
+// use watch to navigate on success
+watch(submitStatus, async (newStatus) => {
+    if (newStatus === 'success') {
         await navigateTo('/')
     }
-}
+})
 </script>
