@@ -43,7 +43,10 @@ import { subscribe } from '~~/server/db/schema'
 const route = useRoute()
 
 const schema = createInsertSchema(subscribe, {
-    link: () => z.url()
+    name: () => z.string().min(1, 'Name is required'),
+    link: () => z.url(),
+    downloadCode: () => z.string().min(1, 'Download Code is required'),
+    contentCode: () => z.string().min(1, 'Content Code is required'),
 }).pick({
     name: true,
     link: true,
@@ -102,14 +105,13 @@ const onSubmit = async () => {
                 method: 'POST',
                 body: state
             })
-            await navigateTo('/')
         } else {
             await $fetch(`/api/subscribe/${route.params.id}`, {
                 method: 'PUT',
                 body: state
             })
-            await navigateTo('/')
         }
+        await navigateTo('/')
     } catch (error) {
         console.error('Error saving subscription:', error)
         const err = error as { data?: { message?: string }, message?: string }

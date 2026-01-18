@@ -1,26 +1,15 @@
 import { db } from "../../db";
-import { insertSubscribeSchema, subscribe } from "../../db/schema";
+import { subscribe } from "../../db/schema";
+import { createInsertSchema } from "drizzle-zod";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  const result = insertSubscribeSchema.safeParse(body);
-
-  if (!result.success) {
-    const firstError = result.error.issues[0];
-    throw createError({
-      statusCode: 400,
-      statusMessage: firstError?.message || "Validation failed",
-    });
-  }
-
   const createdAt = new Date().toISOString();
   const updatedAt = createdAt;
+  const row = { ...body, createdAt, updatedAt };
+  createInsertSchema(subscribe).parse(row);
 
-  await db.insert(subscribe).values({
-    ...result.data,
-    createdAt,
-    updatedAt,
-  });
+  await db.insert(subscribe).values(row);
 
   return { success: true };
 });

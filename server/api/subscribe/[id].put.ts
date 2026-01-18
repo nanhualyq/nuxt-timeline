@@ -1,5 +1,6 @@
 import { db } from "../../db";
-import { insertSubscribeSchema, subscribe } from "../../db/schema";
+import { subscribe } from "../../db/schema";
+import { createInsertSchema } from "drizzle-zod";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
@@ -9,24 +10,13 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event);
-  const result = insertSubscribeSchema.safeParse(body);
-
-  if (!result.success) {
-    const firstError = result.error.issues[0];
-    throw createError({
-      statusCode: 400,
-      statusMessage: firstError?.message || "Validation failed",
-    });
-  }
-
   const updatedAt = new Date().toISOString();
+  const row = { ...body, updatedAt };
+  createInsertSchema(subscribe).parse(row);
 
   await db
     .update(subscribe)
-    .set({
-      ...result.data,
-      updatedAt,
-    })
+    .set(row)
     .where(eq(subscribe.id, id));
 
   return { success: true };
