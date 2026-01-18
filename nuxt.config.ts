@@ -11,4 +11,8 @@ export default defineNuxtConfig({
     "@nuxt/ui",
   ],
   css: ["~/assets/css/main.css"],
+  sourcemap: {
+    server: true,
+    client: true,
+  },
 });
