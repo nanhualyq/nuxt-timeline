@@ -12,8 +12,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event);
-    const updatedAt = new Date().toISOString();
-    const row = { ...omit(body, ["id"]), updatedAt };
+    const row = { ...omit(body, ["id"]) };
     createInsertSchema(subscribe).parse(row);
 
     await db.update(subscribe).set(row).where(eq(subscribe.id, id));
