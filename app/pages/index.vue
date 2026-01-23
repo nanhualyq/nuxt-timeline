@@ -47,13 +47,14 @@ interface ContentResponse {
   hasMore: boolean;
 }
 
-const params = reactive({
+const params = {
   limit: 10,
   lastId: 0,
   lastTime: "",
-});
+};
 const { data, status, refresh } = useFetch<ContentResponse>("/api/content", {
   params,
+  watch: false,
 });
 const list = ref<ContentWithSubscription[]>([]);
 watch(
