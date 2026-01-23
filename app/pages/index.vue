@@ -24,6 +24,7 @@
           <span>
             {{ item.subscription.name }}
           </span>
+          <StarToggle v-model="item.is_star" :id="item.id" />
         </div>
       </template>
     </UPageCard>
@@ -35,6 +36,7 @@
 import type { contentTable, subscriptionTable } from "~~/server/db/schema";
 import { useInfiniteScroll } from "@vueuse/core";
 import { formatDistance } from "date-fns";
+import StarToggle from "~/components/StarToggle.vue";
 
 type Content = typeof contentTable.$inferSelect;
 interface ContentWithSubscription extends Content {
