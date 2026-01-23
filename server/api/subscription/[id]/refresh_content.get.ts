@@ -28,20 +28,7 @@ async function batchInsertContent(contents: Content[], subId: number) {
   return db.insert(contentTable).values(contents).onConflictDoNothing().run();
 }
 async function subscription_refresh_content(sub: Subscription) {
-  const code = `return fetch('https://blog.codingnow.com/atom.xml')
-.then(r => r.text())
-.then(xml => new context.XMLParser({ignoreAttributes : false}).parse(xml))
-.then(root => root.feed.entry.map(item => ({
-  title: item.title,
-  link: item.link['@_href'],
-  time: item.published,
-  author: item.author.name,
-  image: '',
-  description: item.summary,
-  content: item.content['#text']
-})))`;
-  // const res = await execCode(sub.code);
-  const contents = await execCode(code);
+  const contents = await execCode(sub.code);
   return batchInsertContent(contents, sub.id);
 }
 
@@ -68,50 +55,3 @@ export default defineEventHandler(async (event) => {
   const { changes } = await subscription_refresh_content(sub);
   return changes;
 });
-
-// XML for RSS 2.0
-// const code = `return fetch('https://jellyfin.org/index.xml')
-// .then(r => r.text())
-// .then(xml => new context.XMLParser().parse(xml))
-// .then(root => root.rss.channel.item.map(item => ({
-//   title: item.title,
-//   link: item.link,
-//   time: new Date(item.pubDate).toISOString(),
-//   author: '',
-//   image: '',
-//   description: item.description,
-//   content: item['content:encoded']
-// })))`;
-
-// XML for Feed
-// const code = `return fetch('https://blog.codingnow.com/atom.xml')
-// .then(r => r.text())
-// .then(xml => new context.XMLParser({ignoreAttributes : false}).parse(xml))
-// .then(root => root.feed.entry.map(item => ({
-//   title: item.title,
-//   link: item.link['@_href'],
-//   time: item.published,
-//   author: item.author.name,
-//   image: '',
-//   description: item.summary,
-//   content: item.content['#text']
-// })))`;
-
-// HTML for caixin
-// const code = `return context.cheerio.fromURL('https://www.caixin.com/')
-// .then($ => $.extract({
-//   items: [
-//     {
-//       selector: '#zyqh dl',
-//       value: el => ({
-//         title: $(el).find('.wzdf > a').text().trim(),
-//         link: $(el).find('a').attr('href'),
-//         time: new Date().toISOString(),
-//         author: '',
-//         image: $(el).find('a > img').attr('src').trim(),
-//         description: '',
-//         content: ''
-//       })
-//     }
-//   ]
-// }).items)`;
