@@ -5,7 +5,7 @@
       :key="item.id"
       @click="openContentModal(index)"
       class="cursor-pointer"
-      :class="{ 'opacity-80 grayscale-75': item.is_read }"
+      :class="{ 'opacity-60': item.is_read }"
     >
       <template #header>
         {{ item.title }}
@@ -61,10 +61,8 @@ interface ContentResponse {
 </script>
 
 <script setup lang="ts">
-const params = {
+const params: Record<string, unknown> = {
   limit: 10,
-  lastId: 0,
-  lastTime: "",
 };
 const { data, status, refresh } = useFetch<ContentResponse>("/api/content", {
   params,
@@ -82,14 +80,35 @@ watch(
     immediate: true,
   },
 );
+const route = useRoute();
+watch(
+  () => route.query,
+  (query, old) => {
+    list.value = [];
+    delete params.lastId;
+    delete params.lastTime;
+    params.star = query.star;
+    if (query.star) {
+      delete params.read;
+    } else {
+      params.read = query.read || "";
+    }
+    if (old) {
+      refresh();
+    }
+  },
+  {
+    immediate: true,
+  },
+);
 
 onMounted(() => {
   useInfiniteScroll(
     window,
     () => {
       const lastRow = list.value[list.value.length - 1];
-      params.lastId = lastRow?.id || 0;
-      params.lastTime = lastRow?.time || "";
+      params.lastId = lastRow?.id;
+      params.lastTime = lastRow?.time;
       refresh();
     },
     {
