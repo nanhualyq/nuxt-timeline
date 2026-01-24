@@ -1,11 +1,17 @@
 <template>
   <UPageList divide>
-    <UPageCard v-for="item in list" :key="item.id">
+    <UPageCard
+      v-for="(item, index) in list"
+      :key="item.id"
+      @click="openContentModal(index)"
+      class="cursor-pointer"
+      :class="{ 'opacity-80 grayscale-75': item.is_read }"
+    >
       <template #header>
         {{ item.title }}
       </template>
       <template #description>
-        <div class="description flex flex-col sm:flex-row min-h-16">
+        <div class="flex flex-col gap-2 sm:flex-row min-h-16">
           <img
             v-if="item.image"
             :src="item.image"
@@ -17,13 +23,18 @@
         </div>
       </template>
       <template #footer>
-        <div class="flex gap-4">
+        <div class="flex gap-4 justify-end sm:justify-start">
           <span>
             {{ formatDistance(item.time, new Date()) }}
           </span>
           <span>
             {{ item.subscription.name }}
           </span>
+          <UIcon
+            name="material-symbols:visibility-rounded"
+            size="1.5rem"
+            @click.stop="markRead(index, false)"
+          />
           <StarToggle v-model="item.is_star" :id="item.id" />
         </div>
       </template>
@@ -32,21 +43,24 @@
   </UPageList>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
 import type { contentTable, subscriptionTable } from "~~/server/db/schema";
 import { useInfiniteScroll } from "@vueuse/core";
 import { formatDistance } from "date-fns";
 import StarToggle from "~/components/StarToggle.vue";
+import ContentModal from "~/components/ContentModal.vue";
 
 type Content = typeof contentTable.$inferSelect;
-interface ContentWithSubscription extends Content {
+export interface ContentWithSubscription extends Content {
   subscription: typeof subscriptionTable.$inferSelect;
 }
 interface ContentResponse {
   data: ContentWithSubscription[];
   hasMore: boolean;
 }
+</script>
 
+<script setup lang="ts">
 const params = {
   limit: 10,
   lastId: 0,
@@ -86,10 +100,45 @@ onMounted(() => {
     },
   );
 });
+
+function markRead(start: number, isSingle: boolean) {
+  const end = isSingle ? start : 0;
+  const ids = [];
+  for (let i = start; i >= end; i--) {
+    const item = list.value[i];
+    if (item && !item.is_read) {
+      item.is_read = true;
+      ids.push(item?.id);
+    }
+  }
+  $fetch("/api/content", {
+    method: "PATCH",
+    body: {
+      ids,
+      updateData: {
+        is_read: true,
+      },
+    },
+  });
+}
+
+const overlay = useOverlay();
+const contentModal = overlay.create(ContentModal);
+async function openContentModal(index: number) {
+  markRead(index, true);
+  const item = list.value[index];
+  if (!item) return;
+  const instance = contentModal.open({
+    content: item,
+  });
+
+  const isStar = await instance.result;
+  item.is_star = isStar;
+}
 </script>
 
 <style scoped>
-.description {
-  gap: 0.5rem;
+:global([data-slot="footer"]) {
+  width: 100%;
 }
 </style>

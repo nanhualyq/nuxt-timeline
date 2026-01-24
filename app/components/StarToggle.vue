@@ -15,7 +15,7 @@ const toggleStar = async () => {
   isLoading.value = true;
   try {
     await $fetch(`/api/content/${props.id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       body: { is_star: newIsStar },
     });
   } catch (error) {
@@ -44,6 +44,6 @@ const toggleStar = async () => {
       'opacity-50': isLoading,
     }"
     size="1.5rem"
-    @click="toggleStar"
+    @click.stop="toggleStar"
   />
 </template>
