@@ -9,6 +9,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/test-utils",
     "@nuxt/ui",
+    "@kgierke/nuxt-basic-auth",
   ],
   css: ["~/assets/css/main.css"],
   sourcemap: {
