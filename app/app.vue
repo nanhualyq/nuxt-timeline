@@ -4,27 +4,22 @@
       <template #title> Nuxt Timeline </template>
 
       <template #left>
-        <UNavigationMenu :items="items" />
+        <UNavigationMenu :items="leftItems" />
         <span class="hidden">
-          <NuxtLink :href="items[0]?.to" accesskey="a">New</NuxtLink>
-          <NuxtLink :href="items[1]?.to" accesskey="s">Star</NuxtLink>
+          <NuxtLink :href="leftItems[0]?.to" accesskey="a">New</NuxtLink>
+          <NuxtLink :href="leftItems[1]?.to" accesskey="s">Star</NuxtLink>
         </span>
       </template>
 
+      <UNavigationMenu :items="items" />
+
       <template #right>
         <UColorModeButton />
-
-        <!-- <UButton
-          color="neutral"
-          variant="ghost"
-          to="https://github.com/nuxt/ui"
-          target="_blank"
-          icon="i-simple-icons-github"
-          aria-label="GitHub"
-        /> -->
       </template>
 
-      <template #body> 123123 </template>
+      <template #body>
+        <UNavigationMenu orientation="vertical" :items="items" />
+      </template>
     </UHeader>
     <UMain>
       <NuxtLayout>
@@ -38,8 +33,9 @@
 import type { NavigationMenuItem } from "@nuxt/ui";
 
 const route = useRoute();
+const router = useRouter();
 
-const items = computed<NavigationMenuItem[]>(() => [
+const leftItems = computed<NavigationMenuItem[]>(() => [
   {
     label: "New",
     to: "/",
@@ -51,4 +47,16 @@ const items = computed<NavigationMenuItem[]>(() => [
     active: route.path === "/" && !!route.query.star,
   },
 ]);
+const items = computed<NavigationMenuItem[]>(() => [
+  {
+    label: "Mark all read",
+    icon: "material-symbols:visibility-rounded",
+    onSelect: markAllRead,
+  },
+]);
+
+async function markAllRead() {
+  await $fetch("/api/content/read_all");
+  router.replace(`/?refresh=${Date.now()}`);
+}
 </script>
