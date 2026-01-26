@@ -7,6 +7,7 @@
       class="cursor-pointer"
       :class="{ 'opacity-60': item.is_read }"
     >
+      {{ formatItem(item) }}
       <template #header>
         {{ item.title }}
       </template>
@@ -28,6 +29,11 @@
             {{ formatDistance(item.time, new Date()) }}
           </span>
           <span>
+            <img
+              v-if="item.subscription.icon"
+              :src="item.subscription.icon"
+              class="w-4 h-4 inline"
+            />
             {{ item.subscription.name }}
           </span>
           <UIcon
@@ -153,6 +159,24 @@ async function openContentModal(index: number) {
 
   const isStar = await instance.result;
   item.is_star = isStar;
+}
+
+function formatItem(item: ContentWithSubscription) {
+  if (item.image && item.description) {
+    return;
+  }
+  if (!item.content) return;
+  const dom = new DOMParser().parseFromString(item.content, "text/html");
+  if (!item.image) {
+    const img = dom.querySelector("img");
+    if (img?.src) {
+      item.image = img.src;
+    }
+  }
+  
+  if (!item.description) {
+    item.description = dom.body.textContent?.slice(0, 256) || '';
+  }
 }
 </script>
 
