@@ -20,6 +20,9 @@ async function batchInsertContent(contents: Content[], subId: number) {
   if (!Array.isArray(contents)) {
     throw new Error("contents must be an array");
   }
+  if (contents.length === 0) {
+    return;
+  }
   const contentInsertSchema = createInsertSchema(contentTable);
   for (const item of contents) {
     item.subscription_id = subId;
@@ -52,6 +55,6 @@ export default defineEventHandler(async (event) => {
       statusMessage: "订阅不存在",
     });
   }
-  const { changes } = await subscription_refresh_content(sub);
+  const { changes = 0 } = (await subscription_refresh_content(sub)) || {};
   return changes;
 });
