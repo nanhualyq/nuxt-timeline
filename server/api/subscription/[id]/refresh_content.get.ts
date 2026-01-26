@@ -30,7 +30,7 @@ async function batchInsertContent(contents: Content[], subId: number) {
   }
   return db.insert(contentTable).values(contents).onConflictDoNothing().run();
 }
-async function subscription_refresh_content(sub: Subscription) {
+export async function subscription_refresh_content(sub: Subscription) {
   const contents = await execCode(sub.code);
   return batchInsertContent(contents, sub.id);
 }
