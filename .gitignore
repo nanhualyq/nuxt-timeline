@@ -31,5 +31,6 @@ playwright-report/
 test-results/
 
 # sqlite
+*.db
 *.sqlite
 *.sqlite-journal
