@@ -16,7 +16,7 @@ async function queryContents(query: unknown) {
 
   if (parsed.lastTime && parsed.lastId) {
     where.push(
-      sql`${contentTable.time} < ${parsed.lastTime} OR (${contentTable.time} = ${parsed.lastTime} AND ${contentTable.id} < ${parsed.lastId})`,
+      sql`(${contentTable.time} < ${parsed.lastTime} OR (${contentTable.time} = ${parsed.lastTime} AND ${contentTable.id} < ${parsed.lastId}))`,
     );
   }
   if (parsed.star) {
@@ -37,7 +37,7 @@ async function queryContents(query: unknown) {
       eq(contentTable.subscription_id, subscriptionTable.id),
     )
     .where(and(...where))
-    .orderBy(desc(contentTable.time))
+    .orderBy(desc(contentTable.time), desc(contentTable.id))
     .limit(parsed.limit + 1);
 
   return {
