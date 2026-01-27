@@ -3,9 +3,11 @@
     <UPageCard
       v-for="(item, index) in list"
       :key="item.id"
-      @click="openContentModal(index)"
+      v-scroll-item
       class="cursor-pointer"
       :class="{ 'opacity-60': item.is_read }"
+      :highlight="activeIndex === index"
+      @click="openContentModal(index)"
     >
       {{ formatItem(item) }}
       <template #header>
@@ -43,7 +45,7 @@
             size="1.5rem"
             @click.stop="markRead(index, false)"
           />
-          <StarToggle v-model="item.is_star" :id="item.id" />
+          <StarToggle ref="starToggle" v-model="item.is_star" :id="item.id" />
         </div>
       </template>
     </UPageCard>
@@ -53,7 +55,7 @@
 
 <script lang="ts">
 import type { contentTable, subscriptionTable } from "~~/server/db/schema";
-import { useInfiniteScroll } from "@vueuse/core";
+import { useInfiniteScroll, useMagicKeys } from "@vueuse/core";
 import { formatDistance } from "date-fns";
 import StarToggle from "~/components/StarToggle.vue";
 import ContentModal from "~/components/ContentModal.vue";
@@ -99,7 +101,7 @@ watch(
     if (query.star) {
       delete params.read;
     } else {
-      params.read = query.read || "";
+      params.read = query.read === "all" ? undefined : query.read || "";
     }
     if (old) {
       refresh();
@@ -137,6 +139,9 @@ function markRead(start: number, isSingle: boolean) {
       item.is_read = true;
       ids.push(item?.id);
     }
+  }
+  if (ids.length === 0) {
+    return;
   }
   $fetch("/api/content", {
     method: "PATCH",
@@ -180,6 +185,36 @@ function formatItem(item: ContentWithSubscription) {
     item.description = dom.body.textContent?.slice(0, 256) || "";
   }
 }
+
+const starToggleRef = useTemplateRef("starToggle");
+const activeIndex = ref(-1);
+const { j, k, arrowUp, arrowDown, o, m, f, enter } = useMagicKeys();
+watchEffect(() => {
+  if (j?.value || arrowDown?.value) {
+    activeIndex.value = Math.min(activeIndex.value + 1, list.value.length - 1);
+  } else if (k?.value || arrowUp?.value) {
+    activeIndex.value = Math.max(activeIndex.value - 1, 0);
+  }
+  if (o?.value) {
+    window.open(list.value[activeIndex.value]?.link);
+  }
+  if (m?.value) {
+    markRead(activeIndex.value, false);
+  }
+  if (f?.value) {
+    starToggleRef.value?.[activeIndex.value]?.toggleStar();
+  }
+  if (enter?.value) {
+    openContentModal(activeIndex.value);
+  }
+});
+const vScrollItem = {
+  updated(el: HTMLElement) {
+    if (el.classList.contains("ring-2")) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  },
+};
 </script>
 
 <style scoped>

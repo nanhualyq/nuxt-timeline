@@ -15,23 +15,28 @@ const toggleStar = async () => {
   isLoading.value = true;
   try {
     await $fetch(`/api/content/${props.id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: { is_star: newIsStar },
     });
   } catch (error) {
     // Revert on error
     isStar.value = !newIsStar;
-    console.error('Failed to update star status:', error);
+    console.error("Failed to update star status:", error);
     toast.add({
-      title: 'Failed to update star',
-      description: 'There was an error updating the star status. Please try again.',
-      icon: 'material-symbols:error',
-      color: 'error',
+      title: "Failed to update star",
+      description:
+        "There was an error updating the star status. Please try again.",
+      icon: "material-symbols:error",
+      color: "error",
     });
   } finally {
     isLoading.value = false;
   }
 };
+
+defineExpose({
+  toggleStar,
+});
 </script>
 
 <template>
