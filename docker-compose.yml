@@ -3,12 +3,10 @@ services:
     build: .
     ports:
       - "8898:3000"
-    env_file:
-      - .env.nuxt
     environment:
       - DATABASE_URL=data.db
-      # - NUXT_BASIC_AUTH_ENABLED=false
-      # - NUXT_BASIC_AUTH_USERS=admin:pass
+      - NUXT_BASIC_AUTH_ENABLED=${NUXT_BASIC_AUTH_ENABLED} # true or false
+      - NUXT_BASIC_AUTH_USERS=${NUXT_BASIC_AUTH_USERS} # username:password
     volumes:
       - ./data.db:/app/data.db
     restart: unless-stopped
@@ -19,3 +17,10 @@ services:
       dockerfile: Dockerfile.cron
     image: "cron"
     restart: always
+    command: >
+      bash -c '
+      echo "0 * * * * curl -u "${NUXT_BASIC_AUTH_USERS}" http://nuxt:3000/api/subscription/refresh_content >> /var/log/cron.log 2>&1'\''" > /etc/cron.d/job &&
+      chmod 0644 /etc/cron.d/job &&
+      touch /var/log/cron.log &&
+      cron -f
+      '
