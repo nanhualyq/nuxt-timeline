@@ -1,48 +1,8 @@
 import { db } from "~~/server/db";
-import { contentTable, subscriptionTable } from "~~/server/db/schema";
+import { subscriptionTable } from "~~/server/db/schema";
 import { eq } from "drizzle-orm";
-import { XMLParser } from "fast-xml-parser";
-import * as cheerio from "cheerio";
-import { createInsertSchema } from "drizzle-zod";
-import z from "zod";
+import { subscription_refresh_content } from "~/utils/refresh";
 
-type Subscription = typeof subscriptionTable.$inferSelect;
-type Content = typeof contentTable.$inferInsert;
-
-export async function execCode(code: string) {
-  const context = {
-    XMLParser,
-    cheerio,
-  };
-  const func = new Function("context", code);
-  return await func(context);
-}
-async function batchInsertContent(contents: Content[], subId: number) {
-  if (!Array.isArray(contents)) {
-    throw new Error("contents must be an array");
-  }
-  if (contents.length === 0) {
-    return;
-  }
-  const contentInsertSchema = createInsertSchema(contentTable, {
-    title: z.coerce.string(),
-    link: z.coerce.string(),
-    time: z.coerce.string(),
-    author: z.coerce.string().optional(),
-    image: z.coerce.string().optional(),
-    description: z.coerce.string().optional(),
-    content: z.coerce.string().optional(),
-  });
-  for (const item of contents) {
-    item.subscription_id = subId;
-    contentInsertSchema.parse(item);
-  }
-  return db.insert(contentTable).values(contents).onConflictDoNothing().run();
-}
-export async function subscription_refresh_content(sub: Subscription) {
-  const contents = await execCode(sub.code);
-  return batchInsertContent(contents, sub.id);
-}
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id");
