@@ -53,6 +53,23 @@ const items = computed<NavigationMenuItem[]>(() => [
     icon: "material-symbols:visibility-rounded",
     onSelect: markAllRead,
   },
+  {
+    label: 'Read',
+    children: [
+      {
+        label: 'Unread',
+        to: '/?read'
+      },
+      {
+        label: 'Read',
+        to: '/?read=1'
+      },
+      {
+        label: 'All',
+        to: '/?read=all'
+      },
+    ]
+  }
 ]);
 
 async function markAllRead() {
