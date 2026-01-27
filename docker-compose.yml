@@ -3,10 +3,12 @@ services:
     build: .
     ports:
       - "8898:3000"
+    env_file:
+      - .env.nuxt
     environment:
       - DATABASE_URL=data.db
-      - NUXT_BASIC_AUTH_ENABLED=false
-      - NUXT_BASIC_AUTH_USERS=admin:pass
+      # - NUXT_BASIC_AUTH_ENABLED=false
+      # - NUXT_BASIC_AUTH_USERS=admin:pass
     volumes:
       - ./data.db:/app/data.db
     restart: unless-stopped
