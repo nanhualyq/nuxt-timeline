@@ -32,5 +32,6 @@ test-results/
 
 # sqlite
 *.db
+*.db-*
 *.sqlite
 *.sqlite-journal
