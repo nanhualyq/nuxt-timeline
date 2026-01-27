@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { XMLParser } from "fast-xml-parser";
 import * as cheerio from "cheerio";
 import { createInsertSchema } from "drizzle-zod";
+import z from "zod";
 
 type Subscription = typeof subscriptionTable.$inferSelect;
 type Content = typeof contentTable.$inferInsert;
@@ -23,7 +24,15 @@ async function batchInsertContent(contents: Content[], subId: number) {
   if (contents.length === 0) {
     return;
   }
-  const contentInsertSchema = createInsertSchema(contentTable);
+  const contentInsertSchema = createInsertSchema(contentTable, {
+    title: z.coerce.string(),
+    link: z.coerce.string(),
+    time: z.coerce.string(),
+    author: z.coerce.string().optional(),
+    image: z.coerce.string().optional(),
+    description: z.coerce.string().optional(),
+    content: z.coerce.string().optional(),
+  });
   for (const item of contents) {
     item.subscription_id = subId;
     contentInsertSchema.parse(item);
