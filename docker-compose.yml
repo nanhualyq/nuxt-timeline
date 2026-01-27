@@ -19,7 +19,7 @@ services:
     restart: always
     command: >
       bash -c '
-      echo "0 * * * * curl -u "${NUXT_BASIC_AUTH_USERS}" http://nuxt:3000/api/subscription/refresh_content >> /var/log/cron.log 2>&1'\''" > /etc/cron.d/job &&
+      echo "0 * * * * curl -u \"${NUXT_BASIC_AUTH_USERS}\" http://nuxt:3000/api/subscription/refresh_content >> /var/log/cron.log 2>&1" > /etc/cron.d/job &&
       chmod 0644 /etc/cron.d/job &&
       touch /var/log/cron.log &&
       cron -f
