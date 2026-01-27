@@ -1,0 +1,17 @@
+services:
+  nuxt:
+    build: .
+    ports:
+      - "8898:3000"
+    environment:
+      - DATABASE_URL=data.db
+    volumes:
+      - ./data.db:/app/data.db
+    restart: unless-stopped
+
+  cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.cron
+    image: "cron"
+    restart: always
