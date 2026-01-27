@@ -1,0 +1,15 @@
+import { subscription_refresh_content } from "~~/server/api/subscription/[id]/refresh_content.get";
+import { db } from "~~/server/db";
+import { subscriptionTable } from "~~/server/db/schema";
+
+export async function refreshAllSubscription() {
+  const subs = await db.select().from(subscriptionTable);
+  for (const sub of subs) {
+    try {
+      await subscription_refresh_content(sub);
+      console.log("subscription refresh_content is ok", sub.name, sub.id);
+    } catch (error) {
+      console.log("subscription refresh_content is failed", error);
+    }
+  }
+}
