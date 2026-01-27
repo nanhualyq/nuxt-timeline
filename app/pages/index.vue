@@ -91,10 +91,12 @@ watch(
   },
 );
 const route = useRoute();
+const activeIndex = ref(-1);
 watch(
   () => route.query,
   (query, old) => {
     list.value = [];
+    activeIndex.value = -1;
     delete params.lastId;
     delete params.lastTime;
     params.star = query.star;
@@ -187,7 +189,6 @@ function formatItem(item: ContentWithSubscription) {
 }
 
 const starToggleRef = useTemplateRef("starToggle");
-const activeIndex = ref(-1);
 const { j, k, arrowUp, arrowDown, o, m, f, enter } = useMagicKeys();
 watchEffect(() => {
   if (j?.value || arrowDown?.value) {
@@ -220,5 +221,8 @@ const vScrollItem = {
 <style scoped>
 :global([data-slot="footer"]) {
   width: 100%;
+}
+.ring-2 {
+  margin: 2px;
 }
 </style>
