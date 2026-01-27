@@ -9,7 +9,9 @@
     >
       {{ formatItem(item) }}
       <template #header>
-        {{ item.title }}
+        <NuxtLink :to="item.link" target="_blank" @click.stop>
+          {{ item.title }}
+        </NuxtLink>
       </template>
       <template #description>
         <div class="flex flex-col gap-2 sm:flex-row min-h-16">
@@ -173,9 +175,9 @@ function formatItem(item: ContentWithSubscription) {
       item.image = img.src;
     }
   }
-  
+
   if (!item.description) {
-    item.description = dom.body.textContent?.slice(0, 256) || '';
+    item.description = dom.body.textContent?.slice(0, 256) || "";
   }
 }
 </script>
