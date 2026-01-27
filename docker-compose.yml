@@ -5,6 +5,8 @@ services:
       - "8898:3000"
     environment:
       - DATABASE_URL=data.db
+      - NUXT_BASIC_AUTH_ENABLED=false
+      - NUXT_BASIC_AUTH_USERS=admin:pass
     volumes:
       - ./data.db:/app/data.db
     restart: unless-stopped
