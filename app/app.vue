@@ -54,22 +54,27 @@ const items = computed<NavigationMenuItem[]>(() => [
     onSelect: markAllRead,
   },
   {
-    label: 'Read',
+    label: "Refresh",
+    icon: "material-symbols:directory-sync",
+    onSelect: () => $fetch("/api/subscription/refresh_content"),
+  },
+  {
+    label: "Read",
     children: [
       {
-        label: 'Unread',
-        to: '/?read'
+        label: "Unread",
+        to: "/?read",
       },
       {
-        label: 'Read',
-        to: '/?read=1'
+        label: "Read",
+        to: "/?read=1",
       },
       {
-        label: 'All',
-        to: '/?read=all'
+        label: "All",
+        to: "/?read=all",
       },
-    ]
-  }
+    ],
+  },
 ]);
 
 async function markAllRead() {
