@@ -5,23 +5,24 @@ services:
       - "8898:3000"
     environment:
       - DATABASE_URL=data.db
-      - NUXT_BASIC_AUTH_ENABLED=${NUXT_BASIC_AUTH_ENABLED} # true or false
-      - NUXT_BASIC_AUTH_USERS=${NUXT_BASIC_AUTH_USERS} # username:password
     volumes:
       - ./data.db:/app/data.db
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "@every 30s"
+      ofelia.job-exec.datecron.command: 'curl -u "$NUXT_BASIC_AUTH_USERS" http://localhost:3000/api/subscription/refresh_content'
     restart: unless-stopped
 
-  cron:
-    build:
-      context: .
-      dockerfile: Dockerfile.cron
-    image: "cron"
-    restart: always
+  curl-cron:
+    image: curlimages/curl:latest
+    restart: unless-stopped
+    environment:
+      NUXT_BASIC_AUTH_USERS: ${NUXT_BASIC_AUTH_USERS}
     command: >
-      bash -c '
-      echo "0 * * * * root /usr/bin/curl -u \"${NUXT_BASIC_AUTH_USERS}\" http://nuxt:3000/api/subscription/refresh_content >> /var/log/cron.log 2>&1" > /etc/cron.d/job &&
-      chmod 0644 /etc/cron.d/job &&
-      touch /var/log/cron.log &&
-      crontab /etc/cron.d/job &&
-      cron -f
-      '
+      sh -c "
+      while true; do
+        echo '[cron] calling api...';
+        curl -fsS -u \"$NUXT_BASIC_AUTH_USERS\" http://nuxt:3000/api/subscription/refresh_content;
+        sleep 3600;
+      done
+      "
