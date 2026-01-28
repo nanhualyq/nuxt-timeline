@@ -49,7 +49,7 @@
         </div>
       </template>
     </UPageCard>
-    <!-- <UProgress /> -->
+    <UProgress v-show="status === 'pending'" />
   </UPageList>
 </template>
 
@@ -59,6 +59,7 @@ import { useInfiniteScroll, useMagicKeys } from "@vueuse/core";
 import { formatDistance } from "date-fns";
 import StarToggle from "~/components/StarToggle.vue";
 import ContentModal from "~/components/ContentModal.vue";
+import * as cheerio from "cheerio";
 
 type Content = typeof contentTable.$inferSelect;
 export interface ContentWithSubscription extends Content {
@@ -74,27 +75,20 @@ interface ContentResponse {
 const params: Record<string, unknown> = {
   limit: 10,
 };
+const list = ref<ContentWithSubscription[]>([]);
 const { data, status, refresh } = useFetch<ContentResponse>("/api/content", {
   params,
   watch: false,
+  server: false,
+  onResponse({ response }) {
+    list.value.push(...(response._data?.data || []));
+  },
 });
-const list = ref<ContentWithSubscription[]>([]);
-watch(
-  data,
-  (val) => {
-    if (val) {
-      list.value = [...list.value, ...(val.data || [])];
-    }
-  },
-  {
-    immediate: true,
-  },
-);
 const route = useRoute();
 const activeIndex = ref(-1);
 watch(
   () => route.query,
-  (query, old) => {
+  (query) => {
     list.value = [];
     activeIndex.value = -1;
     delete params.lastId;
@@ -105,12 +99,7 @@ watch(
     } else {
       params.read = query.read === "all" ? undefined : query.read || "";
     }
-    if (old) {
-      refresh();
-    }
-  },
-  {
-    immediate: true,
+    refresh();
   },
 );
 
@@ -124,9 +113,14 @@ onMounted(() => {
       refresh();
     },
     {
-      distance: 10,
+      distance: 100,
+      interval: 100,
       canLoadMore: () => {
-        return status.value !== "pending" && !!data.value?.hasMore;
+        return (
+          list.value.length > 0 &&
+          status.value !== "pending" &&
+          !!data.value?.hasMore
+        );
       },
     },
   );
@@ -175,16 +169,16 @@ function formatItem(item: ContentWithSubscription) {
     return;
   }
   if (!item.content) return;
-  const dom = new DOMParser().parseFromString(item.content, "text/html");
+  const $ = cheerio.load(item.content);
   if (!item.image) {
-    const img = dom.querySelector("img");
-    if (img?.src) {
-      item.image = img.src;
+    const img = $("img").first();
+    if (img.length) {
+      item.image = img.attr("src") || "";
     }
   }
 
   if (!item.description) {
-    item.description = dom.body.textContent?.slice(0, 256) || "";
+    item.description = $.text()?.slice(0, 256) || "";
   }
 }
 
