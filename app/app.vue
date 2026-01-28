@@ -32,6 +32,10 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
+useHead({
+  title: "Nuxt Timeline",
+});
+
 const route = useRoute();
 const router = useRouter();
 
