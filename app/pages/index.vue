@@ -80,6 +80,7 @@ const { data, status, refresh } = useFetch<ContentResponse>("/api/content", {
   params,
   watch: false,
   server: false,
+  immediate: false,
   onResponse({ response }) {
     list.value.push(...(response._data?.data || []));
   },
@@ -93,15 +94,22 @@ watch(
     activeIndex.value = -1;
     delete params.lastId;
     delete params.lastTime;
-    params.star = query.star;
-    if (query.star) {
-      delete params.read;
-    } else {
-      params.read = query.read === "all" ? undefined : query.read || "";
-    }
-    refresh();
+    fetchWithParams();
   },
+  {
+    immediate: true,
+  }
 );
+function fetchWithParams() {
+  const { query } = route;
+  params.star = query.star;
+  if (query.star) {
+    delete params.read;
+  } else {
+    params.read = query.read === "all" ? undefined : query.read || "";
+  }
+  refresh();
+}
 
 onMounted(() => {
   useInfiniteScroll(
@@ -110,14 +118,13 @@ onMounted(() => {
       const lastRow = list.value[list.value.length - 1];
       params.lastId = lastRow?.id;
       params.lastTime = lastRow?.time;
-      refresh();
+      fetchWithParams();
     },
     {
       distance: 100,
       interval: 100,
       canLoadMore: () => {
         return (
-          list.value.length > 0 &&
           status.value !== "pending" &&
           !!data.value?.hasMore
         );
