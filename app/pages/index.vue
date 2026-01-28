@@ -191,7 +191,9 @@ watchEffect(() => {
     activeIndex.value = Math.max(activeIndex.value - 1, 0);
   }
   if (o?.value) {
-    window.open(list.value[activeIndex.value]?.link);
+    if (activeIndex.value >= 0) {
+      window.open(list.value[activeIndex.value]?.link);
+    }
   }
   if (m?.value) {
     markRead(activeIndex.value, false);
