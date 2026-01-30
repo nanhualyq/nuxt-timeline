@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import type { contentTable, subscriptionTable } from "~~/server/db/schema";
-import { useInfiniteScroll, useMagicKeys } from "@vueuse/core";
+import { onKeyStroke, useInfiniteScroll } from "@vueuse/core";
 import { formatDistance } from "date-fns";
 import StarToggle from "~/components/StarToggle.vue";
 import ContentModal from "~/components/ContentModal.vue";
@@ -73,7 +73,7 @@ interface ContentResponse {
 
 <script setup lang="ts">
 const countStore = useCountStore();
-const toast = useToast()
+const toast = useToast();
 const params: Record<string, unknown> = {
   limit: 50,
 };
@@ -154,13 +154,12 @@ function markRead(start: number, isSingle: boolean) {
         is_read: true,
       },
     },
-  })
-  .catch(error => {
+  }).catch((error) => {
     toast.add({
-      title: 'Error of mard read',
-      description: error
+      title: "Error of mard read",
+      description: error,
     });
-  })
+  });
 }
 
 const overlay = useOverlay();
@@ -196,27 +195,33 @@ function formatItem(item: ContentWithSubscription) {
 }
 
 const starToggleRef = useTemplateRef("starToggle");
-const { j, k, arrowUp, arrowDown, o, m, f, enter } = useMagicKeys();
-watchEffect(() => {
-  if (j?.value || arrowDown?.value) {
-    activeIndex.value = Math.min(activeIndex.value + 1, list.value.length - 1);
-  } else if (k?.value || arrowUp?.value) {
-    activeIndex.value = Math.max(activeIndex.value - 1, 0);
+function onPureKey(key: string | string[], fn: (e: KeyboardEvent) => void) {
+  onKeyStroke(key, (e) => {
+    if (e.ctrlKey || e.shiftKey || e.altKey || e.metaKey) return;
+    fn(e);
+  });
+}
+onPureKey(["j", "ArrowDown"], (e) => {
+  activeIndex.value = Math.min(activeIndex.value + 1, list.value.length - 1);
+});
+onPureKey(["k", "ArrowUp"], (e) => {
+  activeIndex.value = Math.max(activeIndex.value - 1, 0);
+});
+onPureKey("f", (e) => {
+  starToggleRef.value?.[activeIndex.value]?.toggleStar();
+});
+onPureKey("o", (e) => {
+  if (activeIndex.value >= 0) {
+    window.open(list.value[activeIndex.value]?.link);
   }
-  if (o?.value) {
-    if (activeIndex.value >= 0) {
-      window.open(list.value[activeIndex.value]?.link);
-    }
-  }
-  if (m?.value) {
-    markRead(activeIndex.value, false);
-  }
-  if (f?.value) {
-    starToggleRef.value?.[activeIndex.value]?.toggleStar();
-  }
-  if (enter?.value) {
+});
+onPureKey("m", (e) => {
+  markRead(activeIndex.value, false);
+});
+onPureKey("Enter", (e) => {
+  setTimeout(() => {
     openContentModal(activeIndex.value);
-  }
+  }, 0);
 });
 const vScrollItem = {
   updated(el: HTMLElement) {
