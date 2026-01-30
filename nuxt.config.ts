@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/test-utils",
     "@nuxt/ui",
     "@kgierke/nuxt-basic-auth",
+    "@pinia/nuxt",
   ],
   css: ["~/assets/css/main.css"],
   sourcemap: {

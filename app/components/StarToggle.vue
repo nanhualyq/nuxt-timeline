@@ -7,6 +7,7 @@ const isStar = defineModel<boolean>({ required: true });
 
 const toast = useToast();
 const isLoading = ref(false);
+const countStore = useCountStore();
 
 const toggleStar = async () => {
   const newIsStar = !isStar.value;
@@ -18,6 +19,7 @@ const toggleStar = async () => {
       method: "PATCH",
       body: { is_star: newIsStar },
     });
+    countStore.starred += newIsStar ? 1 : -1;
   } catch (error) {
     // Revert on error
     isStar.value = !newIsStar;

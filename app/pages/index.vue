@@ -72,8 +72,10 @@ interface ContentResponse {
 </script>
 
 <script setup lang="ts">
+const countStore = useCountStore();
+const toast = useToast()
 const params: Record<string, unknown> = {
-  limit: 10,
+  limit: 50,
 };
 const list = ref<ContentWithSubscription[]>([]);
 const { data, status, refresh } = useFetch<ContentResponse>("/api/content", {
@@ -89,7 +91,7 @@ const route = useRoute();
 const activeIndex = ref(-1);
 watch(
   () => route.query,
-  (query) => {
+  () => {
     list.value = [];
     activeIndex.value = -1;
     delete params.lastId;
@@ -98,7 +100,7 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 );
 function fetchWithParams() {
   const { query } = route;
@@ -124,10 +126,7 @@ onMounted(() => {
       distance: 100,
       interval: 100,
       canLoadMore: () => {
-        return (
-          status.value !== "pending" &&
-          !!data.value?.hasMore
-        );
+        return status.value !== "pending" && !!data.value?.hasMore;
       },
     },
   );
@@ -135,12 +134,13 @@ onMounted(() => {
 
 function markRead(start: number, isSingle: boolean) {
   const end = isSingle ? start : 0;
-  const ids = [];
+  const ids: number[] = [];
   for (let i = start; i >= end; i--) {
     const item = list.value[i];
     if (item && !item.is_read) {
       item.is_read = true;
       ids.push(item?.id);
+      countStore.minusUnreadCount(item.subscription_id);
     }
   }
   if (ids.length === 0) {
@@ -154,7 +154,13 @@ function markRead(start: number, isSingle: boolean) {
         is_read: true,
       },
     },
-  });
+  })
+  .catch(error => {
+    toast.add({
+      title: 'Error of mard read',
+      description: error
+    });
+  })
 }
 
 const overlay = useOverlay();

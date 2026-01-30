@@ -32,8 +32,15 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
 
+const countStore = useCountStore();
 useHead({
-  title: "Nuxt Timeline",
+  title: computed(() => {
+    let n = ''
+    if (countStore.totalUnread) {
+      n = `(${countStore.totalUnread}) `
+    }
+    return `${n}Nuxt Timeline`
+  }),
 });
 
 const route = useRoute();
@@ -44,11 +51,13 @@ const leftItems = computed<NavigationMenuItem[]>(() => [
     label: "New",
     to: "/",
     active: route.path === "/" && !route.query.star,
+    badge: countStore.totalUnread,
   },
   {
     label: "Star",
     to: "/?star=1",
     active: route.path === "/" && !!route.query.star,
+    badge: countStore.starred,
   },
 ]);
 const items = computed<NavigationMenuItem[]>(() => [
@@ -85,4 +94,14 @@ async function markAllRead() {
   await $fetch("/api/content/read_all");
   router.replace(`/?refresh=${Date.now()}`);
 }
+
+countStore.fetchCount();
+onMounted(() => {
+  setInterval(
+    () => {
+      countStore.fetchCount();
+    },
+    1000 * 60 * 5,
+  );
+});
 </script>
