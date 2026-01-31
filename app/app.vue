@@ -1,6 +1,13 @@
 <template>
   <UApp>
-    <UHeader>
+    <UHeader
+      :ui="{
+        toggle: 'lg:block',
+        content: 'lg:block',
+        overlay: 'lg:block',
+      }"
+      mode="slideover"
+    >
       <template #title> Nuxt Timeline </template>
 
       <template #left>
@@ -11,14 +18,17 @@
         </span>
       </template>
 
-      <UNavigationMenu :items="items" />
+      <UNavigationMenu content-orientation="vertical" :items="items" />
 
       <template #right>
+        <UNavigationMenu content-orientation="vertical" :items="rightItems" />
         <UColorModeButton />
       </template>
 
       <template #body>
         <UNavigationMenu orientation="vertical" :items="items" />
+        <hr />
+        <UNavigationMenu orientation="vertical" :items="subs" />
       </template>
     </UHeader>
     <UMain>
@@ -31,35 +41,42 @@
 
 <script setup lang="ts">
 import type { NavigationMenuItem } from "@nuxt/ui";
+import { groupBy } from "lodash-es";
 
 const countStore = useCountStore();
 useHead({
   title: computed(() => {
-    let n = ''
+    let n = "";
     if (countStore.totalUnread) {
-      n = `(${countStore.totalUnread}) `
+      n = `(${countStore.totalUnread}) `;
     }
-    return `${n}Nuxt Timeline`
+    return `${n}Nuxt Timeline`;
   }),
 });
 
 const route = useRoute();
 const router = useRouter();
 
-const leftItems = computed<NavigationMenuItem[]>(() => [
-  {
-    label: "New",
-    to: "/",
-    active: route.path === "/" && !route.query.star,
-    badge: countStore.totalUnread,
-  },
-  {
-    label: "Star",
-    to: "/?star=1",
-    active: route.path === "/" && !!route.query.star,
-    badge: countStore.starred,
-  },
-]);
+const leftItems = computed<NavigationMenuItem[]>(() => {
+  let unread = countStore.totalUnread;
+  if (route.query.subscription) {
+    unread = countStore.unreadBySubscription[+route.query.subscription] || 0
+  }
+  return [
+    {
+      label: "New",
+      to: "/",
+      active: route.path === "/" && !route.query.star,
+      badge: unread,
+    },
+    {
+      label: "Star",
+      to: "/?star=1",
+      active: route.path === "/" && !!route.query.star,
+      badge: countStore.starred,
+    },
+  ];
+});
 const items = computed<NavigationMenuItem[]>(() => [
   {
     label: "Mark all read",
@@ -70,23 +87,6 @@ const items = computed<NavigationMenuItem[]>(() => [
     label: "Refresh",
     icon: "material-symbols:directory-sync",
     onSelect: () => $fetch("/api/subscription/refresh_content"),
-  },
-  {
-    label: "Read",
-    children: [
-      {
-        label: "Unread",
-        to: "/?read",
-      },
-      {
-        label: "Read",
-        to: "/?read=1",
-      },
-      {
-        label: "All",
-        to: "/?read=all",
-      },
-    ],
   },
 ]);
 
@@ -104,4 +104,51 @@ onMounted(() => {
     1000 * 60 * 5,
   );
 });
+
+const { data: subGroup } = useFetch("/api/subscription", {
+  transform(subs) {
+    return groupBy(subs, (item) => item.category || "uncategorized");
+  },
+});
+const subs = computed<NavigationMenuItem[]>(() => {
+  if (!subGroup.value) {
+    return [];
+  }
+  return Object.entries(subGroup.value).map(([category, items]) => ({
+    label: category,
+    badge: items.reduce(
+      (acc, s) => acc + (countStore.unreadBySubscription[s.id] || 0),
+      0,
+    ),
+    children: items.map((s) => ({
+      label: s.name,
+      avatar: {
+        src: s.icon,
+      },
+      badge: countStore.unreadBySubscription[s.id],
+      to: `/?subscription=${s.id}`,
+      active: route.query.subscription === s.id + "",
+    })),
+  }));
+});
+
+const rightItems = [
+  {
+    label: "Read",
+    children: [
+      {
+        label: "Unread",
+        to: "/?read",
+      },
+      {
+        label: "Read",
+        to: "/?read=1",
+      },
+      {
+        label: "All",
+        to: "/?read=all",
+      },
+    ],
+  },
+];
 </script>

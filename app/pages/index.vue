@@ -105,6 +105,7 @@ watch(
 function fetchWithParams() {
   const { query } = route;
   params.star = query.star;
+  params.subscription = query.subscription;
   if (query.star) {
     delete params.read;
   } else {

@@ -10,6 +10,7 @@ async function queryContents(query: unknown) {
     lastTime: z.string().optional(),
     star: z.coerce.boolean().default(false).catch(false),
     read: z.coerce.boolean().optional(),
+    subscription: z.coerce.number().optional(),
   });
   const parsed = schema.parse(query);
   const where = [];
@@ -24,6 +25,9 @@ async function queryContents(query: unknown) {
   }
   if (typeof parsed.read === "boolean") {
     where.push(eq(contentTable.is_read, parsed.read));
+  }
+  if (parsed.subscription) {
+    where.push(eq(contentTable.subscription_id, parsed.subscription));
   }
 
   const data = await db
