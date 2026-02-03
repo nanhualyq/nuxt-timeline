@@ -60,7 +60,7 @@ const router = useRouter();
 const leftItems = computed<NavigationMenuItem[]>(() => {
   let unread = countStore.totalUnread;
   if (route.query.subscription) {
-    unread = countStore.unreadBySubscription[+route.query.subscription] || 0
+    unread = countStore.unreadBySubscription[+route.query.subscription] || 0;
   }
   return [
     {
@@ -77,18 +77,31 @@ const leftItems = computed<NavigationMenuItem[]>(() => {
     },
   ];
 });
-const items = computed<NavigationMenuItem[]>(() => [
-  {
-    label: "Mark all read",
-    icon: "material-symbols:visibility-rounded",
-    onSelect: markAllRead,
-  },
-  {
-    label: "Refresh",
-    icon: "material-symbols:directory-sync",
-    onSelect: () => $fetch("/api/subscription/refresh_content"),
-  },
-]);
+const items = computed<NavigationMenuItem[]>(() => {
+  const arr = [
+    {
+      label: "Mark all read",
+      icon: "material-symbols:visibility-rounded",
+      onSelect: markAllRead,
+    },
+    {
+      label: "Refresh",
+      icon: "material-symbols:directory-sync",
+      onSelect: () => $fetch("/api/subscription/refresh_content"),
+    },
+    {
+      label: "Add Subscription",
+      to: "/subscription/add",
+    },
+  ];
+  if (route.query.subscription) {
+    arr.push({
+      label: "Edit Subscription",
+      to: "/subscription/" + route.query.subscription,
+    });
+  }
+  return arr;
+});
 
 async function markAllRead() {
   await $fetch("/api/content/read_all");
@@ -138,15 +151,33 @@ const rightItems = [
     children: [
       {
         label: "Unread",
-        to: "/?read",
+        to: {
+          path: "/",
+          query: {
+            ...route.query,
+            read: "",
+          },
+        },
       },
       {
         label: "Read",
-        to: "/?read=1",
+        to: {
+          path: "/",
+          query: {
+            ...route.query,
+            read: "1",
+          },
+        },
       },
       {
         label: "All",
-        to: "/?read=all",
+        to: {
+          path: "/",
+          query: {
+            ...route.query,
+            read: "all",
+          },
+        },
       },
     ],
   },
