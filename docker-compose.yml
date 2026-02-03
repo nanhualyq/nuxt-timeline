@@ -7,10 +7,6 @@ services:
       - DATABASE_URL=data.db
     volumes:
       - ./data.db:/app/data.db
-    labels:
-      ofelia.enabled: "true"
-      ofelia.job-exec.datecron.schedule: "@every 30s"
-      ofelia.job-exec.datecron.command: 'curl -u "$NUXT_BASIC_AUTH_USERS" http://localhost:3000/api/subscription/refresh_content'
     restart: unless-stopped
 
   curl-cron:
