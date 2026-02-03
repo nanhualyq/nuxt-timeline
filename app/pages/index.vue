@@ -22,7 +22,7 @@
             :src="item.image"
             class="max-h-60 sm:max-w-[256px]"
           />
-          <div v-if="item.description" class="h-16 overflow-hidden">
+          <div v-if="item.description" class="h-16 overflow-hidden break-all">
             {{ item.description }}
           </div>
         </div>
@@ -32,14 +32,14 @@
           <span>
             {{ formatDistance(item.time, new Date()) }}
           </span>
-          <span>
+          <NuxtLink :to="`/?subscription=${item.subscription_id}`">
             <img
               v-if="item.subscription.icon"
               :src="item.subscription.icon"
               class="w-4 h-4 inline"
             />
             {{ item.subscription.name }}
-          </span>
+          </NuxtLink>
           <UIcon
             name="material-symbols:visibility-rounded"
             size="1.5rem"

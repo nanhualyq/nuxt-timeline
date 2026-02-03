@@ -145,7 +145,7 @@ const subs = computed<NavigationMenuItem[]>(() => {
   }));
 });
 
-const rightItems = [
+const rightItems = computed<NavigationMenuItem[]>(() => [
   {
     label: "Read",
     children: [
@@ -181,5 +181,5 @@ const rightItems = [
       },
     ],
   },
-];
+]);
 </script>

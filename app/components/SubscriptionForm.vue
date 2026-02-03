@@ -40,7 +40,6 @@ const {
   {
     immediate: false,
     server: false,
-    lazy: true,
   },
 );
 
