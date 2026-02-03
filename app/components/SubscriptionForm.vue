@@ -1,38 +1,62 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { createInsertSchema } from 'drizzle-zod'
-import type z from 'zod'
-import { subscriptionTable } from '~~/server/db/schema'
+import type { FormSubmitEvent } from "@nuxt/ui";
+import { createInsertSchema } from "drizzle-zod";
+import type z from "zod";
+import { subscriptionTable } from "~~/server/db/schema";
 
-type Subscription = typeof subscriptionTable.$inferSelect
-type SubscriptionInsert = typeof subscriptionTable.$inferInsert
+type Subscription = typeof subscriptionTable.$inferSelect;
+type SubscriptionInsert = typeof subscriptionTable.$inferInsert;
 
 interface Props {
-  formData: Partial<Subscription>
-  submit: (data: Omit<SubscriptionInsert, 'id' | 'last_get_time'>) => Promise<void>
+  formData: Partial<Subscription>;
+  submit: (
+    data: Omit<SubscriptionInsert, "id" | "last_get_time">,
+  ) => Promise<void>;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
-const baseSchema = createInsertSchema(subscriptionTable)
-const schema = baseSchema.omit({ id: true, last_get_time: true })
+const baseSchema = createInsertSchema(subscriptionTable);
+const schema = baseSchema.omit({ id: true, last_get_time: true });
 
-type Schema = z.input<typeof schema>
+type Schema = z.input<typeof schema>;
 
-const state = reactive<Partial<Schema>>(props.formData)
+const state = reactive<Partial<Schema>>(props.formData);
 
-const toast = useToast()
-const loading = ref(false)
+const toast = useToast();
+const loading = ref(false);
+
+const {
+  data: execResult,
+  execute: testCode,
+  pending: execLoading,
+  error: execError,
+} = useAsyncData(
+  () =>
+    $fetch("/api/subscription/test_code", {
+      method: "POST",
+      body: { code: state.code || "" },
+    }),
+  {
+    immediate: false,
+    server: false,
+    lazy: true,
+  },
+);
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
-    loading.value = true
-    await props.submit(event.data)
-    toast.add({ title: 'Success', description: 'Subscription saved successfully.', color: 'success' })
+    loading.value = true;
+    await props.submit(event.data);
+    toast.add({
+      title: "Success",
+      description: "Subscription saved successfully.",
+      color: "success",
+    });
   } catch (error) {
-    toast.add({ title: 'Error', description: error + '', color: 'error' })
+    toast.add({ title: "Error", description: error + "", color: "error" });
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 </script>
@@ -56,12 +80,37 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </UFormField>
 
     <UFormField label="Code" name="code" required>
-      <UTextarea v-model="state.code" placeholder="Subscription code or feed URL" />
+      <UTextarea
+        v-model="state.code"
+        placeholder="Subscription code or feed URL"
+      />
     </UFormField>
-    <!-- TODO: test code -->
+
+    <div class="flex flex-col gap-4">
+      <UCard class="flex-1">
+        <template #header>
+          <UButton
+            :loading="execLoading"
+            variant="outline"
+            @click="() => testCode()"
+          >
+            Test Code
+          </UButton>
+        </template>
+        <pre
+          class="text-sm bg-gray-50 dark:bg-gray-800 p-3 rounded overflow-auto max-h-64"
+        >
+          {{ JSON.stringify(execResult || execError, null, 2) }}
+          </pre
+        >
+      </UCard>
+    </div>
 
     <UFormField label="Interval" name="interval">
-      <UInput v-model="state.interval" placeholder="Update interval (e.g., hourly, daily)" />
+      <UInput
+        v-model="state.interval"
+        placeholder="Update interval (e.g., hourly, daily)"
+      />
     </UFormField>
 
     <UButton type="submit" :loading="loading" class="w-full">
