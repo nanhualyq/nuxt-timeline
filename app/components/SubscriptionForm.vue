@@ -67,21 +67,32 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </UFormField>
 
     <UFormField label="Name" name="name" required>
-      <UInput v-model="state.name" placeholder="Subscription name" />
+      <UInput
+        v-model="state.name"
+        class="w-full"
+        placeholder="Subscription name"
+      />
     </UFormField>
 
     <UFormField label="Icon" name="icon">
-      <UInput v-model="state.icon" placeholder="Icon name or URL" />
+      <UInput
+        v-model="state.icon"
+        class="w-full"
+        placeholder="Icon name or URL"
+      />
     </UFormField>
 
     <UFormField label="Category" name="category">
-      <UInput v-model="state.category" placeholder="Category" />
+      <UInput class="w-full" v-model="state.category" placeholder="Category" />
     </UFormField>
 
     <UFormField label="Code" name="code" required>
       <UTextarea
         v-model="state.code"
-        placeholder="Subscription code or feed URL"
+        class="w-full"
+        placeholder="Subscription code"
+        autoresize
+        :maxrows="20"
       />
     </UFormField>
 
@@ -108,6 +119,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     <UFormField label="Interval" name="interval">
       <UInput
         v-model="state.interval"
+        class="w-full"
         placeholder="Update interval (e.g., hourly, daily)"
       />
     </UFormField>
