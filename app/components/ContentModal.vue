@@ -41,7 +41,14 @@ const isStar = ref(props.content.is_star);
       </div>
     </template>
     <template #footer>
-      <StarToggle v-model="isStar" :id="content.id" />
+      <div class="flex gap-4 w-full justify-end">
+        <StarToggle v-model="isStar" :id="content.id" />
+        <UIcon
+          name="material-symbols:cancel"
+          class="size-6"
+          @click="emit('close', isStar)"
+        />
+      </div>
     </template>
   </UModal>
 </template>
