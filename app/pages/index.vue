@@ -20,7 +20,7 @@
           <img
             v-if="item.image"
             :src="item.image"
-            class="max-h-60 sm:max-w-[256px]"
+            class="max-h-60 sm:max-w-[256px] object-contain"
           />
           <div v-if="item.description" class="h-16 overflow-hidden break-all">
             {{ item.description }}
