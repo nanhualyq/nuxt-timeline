@@ -5,6 +5,7 @@
       <UButton color="error" @click="deleteThis">Delete</UButton>
       <UButton @click="empty" variant="outline">Empty</UButton>
       <UButton @click="refresh" variant="outline">Refresh</UButton>
+      last_get_time: {{ data.last_get_time }}
     </div>
     <hr class="my-4" />
     <div v-if="pending" class="flex justify-center">

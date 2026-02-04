@@ -3,6 +3,7 @@ import type { FormSubmitEvent } from "@nuxt/ui";
 import { createInsertSchema } from "drizzle-zod";
 import type z from "zod";
 import { subscriptionTable } from "~~/server/db/schema";
+import IntervalField from "./IntervalField.vue";
 
 type Subscription = typeof subscriptionTable.$inferSelect;
 type SubscriptionInsert = typeof subscriptionTable.$inferInsert;
@@ -93,6 +94,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         placeholder="Subscription code"
         autoresize
         :maxrows="20"
+        :autoresize-delay="100"
       />
     </UFormField>
 
@@ -117,11 +119,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </div>
 
     <UFormField label="Interval" name="interval">
-      <UInput
-        v-model="state.interval"
-        class="w-full"
-        placeholder="Update interval (e.g., hourly, daily)"
-      />
+      <IntervalField v-model="state.interval!" />
     </UFormField>
 
     <UButton type="submit" :loading="loading" class="w-full">
