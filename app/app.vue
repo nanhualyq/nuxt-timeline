@@ -93,6 +93,11 @@ const items = computed<NavigationMenuItem[]>(() => {
       label: "Add Subscription",
       to: "/subscription/add",
     },
+    {
+      label: "Logs",
+      to: "/logs",
+      badge: countStore.todayErrorSubs,
+    },
   ];
   if (route.query.subscription) {
     arr.push({
@@ -109,6 +114,7 @@ async function markAllRead() {
 }
 
 countStore.fetchCount();
+countStore.fetchTodayErrorCount();
 onMounted(() => {
   setInterval(
     () => {

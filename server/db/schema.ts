@@ -26,3 +26,13 @@ export const contentTable = sqliteTable("content", {
   is_read: integer({ mode: "boolean" }).notNull().default(false),
   is_star: integer({ mode: "boolean" }).notNull().default(false),
 });
+
+export const subsLogsTable = sqliteTable("subs_logs", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  sub_id: integer()
+    .references(() => subscriptionTable.id)
+    .notNull(),
+  status: text({enum: ['success', 'failed']}).notNull(),
+  info: text(),
+  time: text().notNull(),
+});

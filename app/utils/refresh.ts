@@ -1,6 +1,10 @@
 import { db } from "~~/server/db";
 
-import { contentTable, subscriptionTable } from "~~/server/db/schema";
+import {
+  contentTable,
+  subscriptionTable,
+  subsLogsTable,
+} from "~~/server/db/schema";
 import { XMLParser } from "fast-xml-parser";
 import * as cheerio from "cheerio";
 import { createInsertSchema } from "drizzle-zod";
@@ -48,10 +52,27 @@ export async function refreshAllSubscription() {
   const subs = await db.select().from(subscriptionTable);
   for (const sub of subs) {
     try {
-      await subscription_refresh_content(sub);
-      console.log("subscription refresh_content is ok", sub.name, sub.id);
+      const res = await subscription_refresh_content(sub);
+
+      await db
+        .insert(subsLogsTable)
+        .values({
+          sub_id: sub.id,
+          status: "success",
+          info: `${res?.changes || 0} rows inserted`,
+          time: new Date().toISOString(),
+        })
+        .run();
     } catch (error) {
-      console.log("subscription refresh_content is failed", error);
+      await db
+        .insert(subsLogsTable)
+        .values({
+          sub_id: sub.id,
+          status: "failed",
+          info: error instanceof Error ? error.message : String(error),
+          time: new Date().toISOString(),
+        })
+        .run();
     }
   }
 }

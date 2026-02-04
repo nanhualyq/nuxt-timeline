@@ -12,37 +12,29 @@ export const useCountStore = defineStore("count", {
   state: () => ({
     starred: 0,
     unreadBySubscription: {} as Record<number, number>,
-    loading: false,
-    error: null as string | null,
+    todayErrorSubs: 0,
   }),
 
   actions: {
     async fetchCount() {
-      this.loading = true;
-      this.error = null;
-
-      try {
-        const data = await $fetch<CountData>("/api/content/count");
-        this.starred = data.starred;
-        // Map array to object with subscriptionId as key
-        this.unreadBySubscription = data.unreadBySubscription.reduce(
-          (acc, item) => {
-            acc[item.subscriptionId] = item.count;
-            return acc;
-          },
-          {} as Record<number, number>,
-        );
-      } catch (err) {
-        this.error =
-          err instanceof Error ? err.message : "Failed to fetch count";
-      } finally {
-        this.loading = false;
-      }
+      const data = await $fetch<CountData>("/api/content/count");
+      this.starred = data.starred;
+      // Map array to object with subscriptionId as key
+      this.unreadBySubscription = data.unreadBySubscription.reduce(
+        (acc, item) => {
+          acc[item.subscriptionId] = item.count;
+          return acc;
+        },
+        {} as Record<number, number>,
+      );
     },
     minusUnreadCount(subscriptionId: number) {
       if (this.unreadBySubscription[subscriptionId]) {
         this.unreadBySubscription[subscriptionId]--;
       }
+    },
+    async fetchTodayErrorCount() {
+      this.todayErrorSubs = await $fetch("/api/subs-logs/today-error-count");
     },
   },
 
