@@ -145,7 +145,7 @@ const subs = computed<NavigationMenuItem[]>(() => {
         src: s.icon,
       },
       badge: countStore.unreadBySubscription[s.id],
-      to: `/?subscription=${s.id}`,
+      to: `/?subscription=${s.id}&read=all`,
       active: route.query.subscription === s.id + "",
     })),
   }));
