@@ -30,10 +30,10 @@
       </template>
       <template #footer>
         <div class="flex gap-4 justify-end sm:justify-start">
-          <span>
+          <span class="shrink-0">
             {{ formatDistance(item.time, new Date()) }}
           </span>
-          <NuxtLink @click.stop :to="`/?subscription=${item.subscription_id}`">
+          <NuxtLink class="max-w-40 sm:max-w-fit truncate" @click.stop :to="`/?subscription=${item.subscription_id}`">
             <img
               v-if="item.subscription.icon"
               :src="item.subscription.icon"
@@ -42,11 +42,12 @@
             {{ item.subscription.name }}
           </NuxtLink>
           <UIcon
+            class="shrink-0"
             name="material-symbols:visibility-rounded"
             size="1.5rem"
             @click.stop="markRead(index, false)"
           />
-          <StarToggle ref="starToggle" v-model="item.is_star" :id="item.id" />
+          <StarToggle class="shrink-0" ref="starToggle" v-model="item.is_star" :id="item.id" />
         </div>
       </template>
     </UPageCard>
