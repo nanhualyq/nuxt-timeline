@@ -33,6 +33,7 @@ const {
   pending: execLoading,
   error: execError,
 } = useAsyncData(
+  "test-code-" + props.formData.id,
   () =>
     $fetch("/api/subscription/test_code", {
       method: "POST",
