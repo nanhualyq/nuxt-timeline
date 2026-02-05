@@ -21,6 +21,6 @@ services:
       while true; do
         echo '[cron] calling api...';
         curl -fsS -u \"$NUXT_BASIC_AUTH_USERS\" http://nuxt:3000/api/subscription/refresh_content;
-        sleep 3600;
+        sleep 600;
       done
       "
