@@ -4,12 +4,13 @@
       v-for="(item, index) in list"
       :key="item.id"
       v-scroll-item
+      v-lazy="index"
       class="cursor-pointer"
       :class="{ 'opacity-60': item.is_read }"
       :highlight="activeIndex === index"
       @click="openContentModal(index)"
     >
-      {{ formatItem(item) }}
+      <!-- {{ formatItem(item) }} -->
       <template #header>
         <NuxtLink :to="item.link" target="_blank" @click.stop>
           {{ item.title }}
@@ -55,11 +56,16 @@
 
 <script lang="ts">
 import type { contentTable, subscriptionTable } from "~~/server/db/schema";
-import { onKeyStroke, useInfiniteScroll } from "@vueuse/core";
+import {
+  onKeyStroke,
+  useInfiniteScroll,
+  useIntersectionObserver,
+} from "@vueuse/core";
 import { formatDistance } from "date-fns";
 import StarToggle from "~/components/StarToggle.vue";
 import ContentModal from "~/components/ContentModal.vue";
 import * as cheerio from "cheerio";
+import type { Directive } from "vue";
 
 type Content = typeof contentTable.$inferSelect;
 export interface ContentWithSubscription extends Content {
@@ -177,7 +183,37 @@ async function openContentModal(index: number) {
   item.is_star = isStar;
 }
 
+async function translateField(
+  item: ContentWithSubscription,
+  field: "title" | "description",
+) {
+  if (!item[field] || item.is_read) {
+    return;
+  }
+  const isChinese = /[\u4e00-\u9fff]/.test(item[field]);
+  if (isChinese) {
+    return;
+  }
+  const res = await fetch("https://translate.cutie.dating/translate", {
+    method: "POST",
+    body: JSON.stringify({
+      q: item[field],
+      source: "auto",
+      target: "zh-Hans",
+      format: "text",
+      // alternatives: 3,
+      api_key: "",
+    }),
+    headers: { "Content-Type": "application/json" },
+  }).then((r) => r.json());
+
+  if (res.translatedText) {
+    item[field] = res.translatedText + ` | ${item[field]}`;
+  }
+}
+
 function formatItem(item: ContentWithSubscription) {
+  translateField(item, "title");
   if (item.image && item.description) {
     return;
   }
@@ -193,6 +229,7 @@ function formatItem(item: ContentWithSubscription) {
   if (!item.description) {
     item.description = $.text()?.slice(0, 256) || "";
   }
+  translateField(item, "description");
 }
 
 const starToggleRef = useTemplateRef("starToggle");
@@ -231,6 +268,26 @@ const vScrollItem = {
     }
   },
 };
+
+const vLazy: Directive<HTMLElement, number> = {
+  mounted(el, binding) {
+    useIntersectionObserver(
+      el,
+      ([entry]: IntersectionObserverEntry[], observer) => {
+        if (entry?.isIntersecting) {
+          formatItemByIndex(binding.value);
+          observer.disconnect();
+        }
+      },
+    );
+  },
+};
+
+function formatItemByIndex(index: number) {
+  const item = list.value[index];
+  if (!item) return;
+  formatItem(item);
+}
 </script>
 
 <style scoped>
