@@ -83,11 +83,14 @@ export async function refreshAllSubscription() {
         eq(subscriptionTable.enable, true),
         sql`
           datetime(
-            ${subscriptionTable.last_get_time},
+            coalesce(
+              nullif(${subscriptionTable.last_get_time}, ''),
+              '1970-01-01 00:00:00'
+            ),
             coalesce(nullif(${subscriptionTable.interval}, ''), '+1 hour')
           )
           <= datetime('now')
-        `
+        `,
       ),
     );
   for (const sub of subs) {
