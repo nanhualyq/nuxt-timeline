@@ -2,7 +2,7 @@
 const model = defineModel<string>();
 
 const timeUnits = [
-  { label: "Seconds", value: "seconds" },
+  // { label: "Seconds", value: "seconds" },
   { label: "Minutes", value: "minutes" },
   { label: "Hours", value: "hours" },
   { label: "Days", value: "days" },
@@ -18,6 +18,8 @@ watch(model, (newVal) => {
   const [, n = 1, u = "hours"] = (newVal || "").match(/^.(\d+) (\w+)/) || [];
   number.value = +n;
   unit.value = u;
+}, {
+  immediate: true
 });
 
 watch(
