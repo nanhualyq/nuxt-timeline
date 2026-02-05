@@ -81,6 +81,8 @@
               {{ log.info || "-" }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ formatDistance(log.time, new Date()) }}
+              <br>
               {{ log.time }}
             </td>
           </tr>
@@ -91,6 +93,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatDistance } from "date-fns";
 import type { subscriptionTable, subsLogsTable } from "~~/server/db/schema";
 
 type SubLog = typeof subsLogsTable.$inferSelect;

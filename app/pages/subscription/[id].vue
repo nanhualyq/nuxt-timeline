@@ -5,7 +5,10 @@
       <UButton color="error" @click="deleteThis">Delete</UButton>
       <UButton @click="empty" variant="outline">Empty</UButton>
       <UButton @click="refresh" variant="outline">Refresh</UButton>
-      last_get_time: {{ data.last_get_time }}
+      <span v-if="data.last_get_time">
+        last_get_time: {{ formatDistance(data.last_get_time, new Date()) }}
+        ({{ data.last_get_time }})
+      </span>
     </div>
     <hr class="my-4" />
     <div v-if="pending" class="flex justify-center">
@@ -20,6 +23,7 @@
 </template>
 
 <script setup lang="ts">
+import { formatDistance } from "date-fns";
 import type { subscriptionTable } from "~~/server/db/schema";
 
 type Subscription = typeof subscriptionTable.$inferSelect;
