@@ -5,9 +5,11 @@
       <UButton color="error" @click="deleteThis">Delete</UButton>
       <UButton @click="empty" variant="outline">Empty</UButton>
       <UButton @click="refresh" variant="outline">Refresh</UButton>
+      <UButton @click="copyAs" variant="outline">Copy As</UButton>
       <span v-if="data.last_get_time">
-        last_get_time: {{ formatDistance(data.last_get_time, new Date()) }}
-        ({{ data.last_get_time }})
+        last_get_time: {{ formatDistance(data.last_get_time, new Date()) }} ({{
+          data.last_get_time
+        }})
       </span>
     </div>
     <hr class="my-4" />
@@ -24,6 +26,7 @@
 
 <script setup lang="ts">
 import { formatDistance } from "date-fns";
+import { omit } from "lodash-es";
 import type { subscriptionTable } from "~~/server/db/schema";
 
 type Subscription = typeof subscriptionTable.$inferSelect;
@@ -85,6 +88,28 @@ async function deleteThis() {
         color: "success",
       });
       navigateTo("/");
+    })
+    .catch(alert);
+}
+async function copyAs() {
+  const newTitle = prompt("New Name:", `${data.value?.name} Copy As ...`);
+  if (!newTitle) {
+    return;
+  }
+  $fetch(`/api/subscription`, {
+    method: "post",
+    body: {
+      ...omit(data.value, ["id"]),
+      name: newTitle,
+    },
+  })
+    .then((res) => {
+      toast.add({
+        title: "Success",
+        description: "Subscription copy successfully.",
+        color: "success",
+      });
+      navigateTo(`/subscription/${res?.id}`);
     })
     .catch(alert);
 }
