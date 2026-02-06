@@ -111,6 +111,7 @@ const items = computed<NavigationMenuItem[]>(() => {
 async function markAllRead() {
   await $fetch("/api/content/read_all");
   router.replace(`/?refresh=${Date.now()}`);
+  countStore.unreadBySubscription = {}
 }
 
 countStore.fetchCount();
