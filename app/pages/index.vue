@@ -29,11 +29,14 @@
         </div>
       </template>
       <template #footer>
-        <div class="flex gap-4 justify-end sm:justify-start">
-          <span class="shrink-0">
+        <div class="flex gap-4 justify-end sm:justify-start flex-wrap">
+          <span>
             {{ formatDistance(item.time, new Date()) }}
           </span>
-          <NuxtLink class="max-w-40 sm:max-w-fit truncate" @click.stop :to="`/?subscription=${item.subscription_id}`">
+          <NuxtLink
+            @click.stop
+            :to="`/?subscription=${item.subscription_id}`"
+          >
             <img
               v-if="item.subscription.icon"
               :src="item.subscription.icon"
@@ -41,13 +44,21 @@
             />
             {{ item.subscription.name }}
           </NuxtLink>
+          <span v-if="item.author" class="break-all">
+            {{ item.author }}
+          </span>
           <UIcon
             class="shrink-0"
             name="material-symbols:visibility-rounded"
             size="1.5rem"
             @click.stop="markRead(index, false)"
           />
-          <StarToggle class="shrink-0" ref="starToggle" v-model="item.is_star" :id="item.id" />
+          <StarToggle
+            class="shrink-0"
+            ref="starToggle"
+            v-model="item.is_star"
+            :id="item.id"
+          />
         </div>
       </template>
     </UPageCard>
