@@ -31,12 +31,12 @@ const isStar = ref(props.content.is_star);
         <p v-else class="text-sm text-gray-600 mb-2">
           {{ content.description }}
         </p>
-        <div class="text-sm text-gray-500">
+        <div class="flex gap-2 text-sm text-gray-500">
           <span>
             {{ content.subscription.name }}
           </span>
           <span>{{ content.author }}</span>
-          {{ new Date(content.time).toLocaleString() }}
+          {{ content.time }}
         </div>
       </div>
     </template>
