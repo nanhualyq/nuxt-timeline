@@ -33,10 +33,7 @@
           <span>
             {{ formatDistance(item.time, new Date()) }}
           </span>
-          <NuxtLink
-            @click.stop
-            :to="`/?subscription=${item.subscription_id}`"
-          >
+          <NuxtLink @click.stop :to="`/?subscription=${item.subscription_id}`">
             <img
               v-if="item.subscription.icon"
               :src="item.subscription.icon"
@@ -269,6 +266,9 @@ onPureKey("m", (e) => {
   markRead(activeIndex.value, false);
 });
 onPureKey("Enter", (e) => {
+  if (activeIndex.value >= 0) {
+    e.preventDefault();
+  }
   setTimeout(() => {
     openContentModal(activeIndex.value);
   }, 0);
