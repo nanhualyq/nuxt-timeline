@@ -1,11 +1,15 @@
 import { db } from "../../../db";
-import { subscriptionTable, contentTable } from "../../../db/schema";
+import {
+  subscriptionTable,
+  contentTable,
+  subsLogsTable,
+} from "../../../db/schema";
 import { eq } from "drizzle-orm";
 
 export default defineEventHandler(async (event) => {
   try {
-    const id = parseInt(getRouterParam(event, 'id')!);
-    
+    const id = parseInt(getRouterParam(event, "id")!);
+
     if (isNaN(id)) {
       throw createError({
         statusCode: 400,
@@ -27,6 +31,8 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    await db.delete(subsLogsTable).where(eq(subsLogsTable.sub_id, id));
+    
     // Delete all content for this subscription first (foreign key constraint)
     await db.delete(contentTable).where(eq(contentTable.subscription_id, id));
 
@@ -38,7 +44,7 @@ export default defineEventHandler(async (event) => {
     console.error("Error deleting subscription:", error);
     throw createError({
       statusCode: 500,
-      statusMessage: "Failed to delete subscription",
+      statusMessage: error + "",
     });
   }
 });
