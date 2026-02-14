@@ -1,5 +1,10 @@
 <template>
   <UPageList divide>
+    <UEmpty
+      v-show="status === 'success' && list.length === 0"
+      title="No articles found"
+      icon="material-symbols:coffee"
+    />
     <UPageCard
       v-for="(item, index) in list"
       :key="item.id"
